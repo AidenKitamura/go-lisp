@@ -339,7 +339,135 @@ func EVAL_MINUS(e *EXPR) (TYPE int, VALUE interface{}) {
 // thing to float and return float result
 // ***Allow Single Operands***
 func EVAL_MULTIPLY(e *EXPR) (TYPE int, VALUE interface{}) {
-	return ERROR, "multi error"
+	// Check if any of the operands are float type
+	// If yes, then type cast everything to float
+	// In order to boost performance, use a slice
+	// to store pre-computed results, if any
+	NEED_FLOAT := false
+	PRE_RESULT := make([]interface{}, 0)
+	for _, ex := range e.operands {
+		switch ex.op {
+		case INT:
+			// Add integer to precomputed list
+			// If error, return error
+			T, V := EVAL(ex)
+			if T == ERROR {
+				return ERROR, V
+			} else {
+				PRE_RESULT = append(PRE_RESULT, V)
+			}
+
+		case FLOAT:
+			// Add float to precomputed list
+			// If error, return error
+			NEED_FLOAT = true
+			T, V := EVAL(ex)
+			if T == ERROR {
+				return ERROR, V
+			} else {
+				PRE_RESULT = append(PRE_RESULT, V)
+			}
+
+		case ADD:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_ADD(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case MINUS:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_MINUS(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case MULTIPLY:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_MULTIPLY(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case DIVIDE:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_DIVIDE(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		default:
+			return ERROR, fmt.Errorf("unknown non-numerical operand type: %d", ex.op)
+		}
+	}
+
+	if NEED_FLOAT {
+		// type case to float
+		// then return value
+		if len(PRE_RESULT) == 1 {
+			// Must be float, need not check
+			return FLOAT, PRE_RESULT[0].(float64)
+		}
+
+		// If more than one operands
+		// Set first operand
+		var res float64
+		operand, ok := PRE_RESULT[0].(float64)
+		if ok {
+			res = operand
+		} else {
+			res = float64(PRE_RESULT[0].(int))
+		}
+		for index := 1; index < len(PRE_RESULT); index++ {
+			operand, ok = PRE_RESULT[index].(float64)
+			if ok {
+				res *= operand
+			} else {
+				res *= float64(PRE_RESULT[index].(int))
+			}
+		}
+		return FLOAT, res
+	} else {
+		// All ints, need not check
+		res := 0
+		if len(PRE_RESULT) == 1 {
+			return INT, PRE_RESULT[0].(int)
+		} else {
+			res = PRE_RESULT[0].(int)
+			for index := 1; index < len(PRE_RESULT); index++ {
+				res *= PRE_RESULT[index].(int)
+			}
+		}
+		return INT, res
+	}
 }
 
 // ADD function deals with add expressions. We
@@ -348,5 +476,135 @@ func EVAL_MULTIPLY(e *EXPR) (TYPE int, VALUE interface{}) {
 // thing to float and return float result
 // ***Allow Single Operands***
 func EVAL_DIVIDE(e *EXPR) (TYPE int, VALUE interface{}) {
-	return ERROR, "divide error"
+	// Check if any of the operands are float type
+	// If yes, then type cast everything to float
+	// In order to boost performance, use a slice
+	// to store pre-computed results, if any
+	NEED_FLOAT := false
+	PRE_RESULT := make([]interface{}, 0)
+	for _, ex := range e.operands {
+		switch ex.op {
+		case INT:
+			// Add integer to precomputed list
+			// If error, return error
+			T, V := EVAL(ex)
+			if T == ERROR {
+				return ERROR, V
+			} else {
+				PRE_RESULT = append(PRE_RESULT, V)
+			}
+
+		case FLOAT:
+			// Add float to precomputed list
+			// If error, return error
+			NEED_FLOAT = true
+			T, V := EVAL(ex)
+			if T == ERROR {
+				return ERROR, V
+			} else {
+				PRE_RESULT = append(PRE_RESULT, V)
+			}
+
+		case ADD:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_ADD(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case MINUS:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_MINUS(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case MULTIPLY:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_MULTIPLY(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		case DIVIDE:
+			// If find a sub expression, evaluate
+			// it and see if it is float
+			T, V := EVAL_DIVIDE(ex)
+			switch T {
+			case INT:
+				PRE_RESULT = append(PRE_RESULT, V)
+			case FLOAT:
+				PRE_RESULT = append(PRE_RESULT, V)
+				NEED_FLOAT = true
+			default:
+				return ERROR, fmt.Errorf("unknown value type: %d", T)
+			}
+
+		default:
+			return ERROR, fmt.Errorf("unknown non-numerical operand type: %d", ex.op)
+		}
+	}
+
+	if NEED_FLOAT {
+		// type case to float
+		// then return value
+		if len(PRE_RESULT) == 1 {
+			// Must be float, need not check
+			// Divide situation special
+			// Return 0
+			return FLOAT, 0.0
+		}
+
+		// If more than one operands
+		// Set first operand
+		var res float64
+		operand, ok := PRE_RESULT[0].(float64)
+		if ok {
+			res = operand
+		} else {
+			res = float64(PRE_RESULT[0].(int))
+		}
+		for index := 1; index < len(PRE_RESULT); index++ {
+			operand, ok = PRE_RESULT[index].(float64)
+			if ok {
+				res /= operand
+			} else {
+				res /= float64(PRE_RESULT[index].(int))
+			}
+		}
+		return FLOAT, res
+	} else {
+		// All ints, need not check
+		res := 0
+		if len(PRE_RESULT) == 1 {
+			return INT, 0
+		} else {
+			res = PRE_RESULT[0].(int)
+			for index := 1; index < len(PRE_RESULT); index++ {
+				res /= PRE_RESULT[index].(int)
+			}
+		}
+		return INT, res
+	}
 }

@@ -52,3 +52,29 @@ func TestExprADDMINUS4(t *testing.T) {
 	}
 	fmt.Printf("correct: %d %v\n", tp, val)
 }
+
+func TestExprMULTI2(t *testing.T) {
+	op0 := &EXPR{FLOAT, "123.98", nil}
+	op1 := &EXPR{INT, "2", nil}
+	op2 := &EXPR{MULTIPLY, "*", []*EXPR{op1, op0}}
+	tp, val := EVAL(op2)
+	if tp == ERROR {
+		t.Fatalf("found type to be error. Value is: %v", val)
+	}
+	if val.(float64) != 123.98*2 {
+		t.Fatalf("Invalid value %v", val)
+	}
+}
+
+func TestExprDIVIDE2(t *testing.T) {
+	op0 := &EXPR{FLOAT, "123.98", nil}
+	op1 := &EXPR{INT, "2", nil}
+	op2 := &EXPR{DIVIDE, "/", []*EXPR{op0, op1}}
+	tp, val := EVAL(op2)
+	if tp == ERROR {
+		t.Fatalf("found type to be error. Value is: %v", val)
+	}
+	if val.(float64) != 123.98/2 {
+		t.Fatalf("Invalid value %v", val)
+	}
+}
