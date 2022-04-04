@@ -35,3 +35,20 @@ func TestExprADD4(t *testing.T) {
 	}
 	fmt.Printf("correct: %d %v\n", tp, val)
 }
+
+func TestExprADDMINUS4(t *testing.T) {
+	op0 := &EXPR{FLOAT, "123.98", nil}
+	op1 := &EXPR{INT, "2", nil}
+	op2 := &EXPR{FLOAT, "3.765", nil}
+	op3 := &EXPR{ADD, "+", []*EXPR{op1, op2}}
+	op4 := &EXPR{ADD, "+", []*EXPR{op1, op2}}
+	op5 := &EXPR{MINUS, "-", []*EXPR{op3, op4, op0}}
+	tp, val := EVAL(op5)
+	if tp == ERROR {
+		t.Fatalf("found type to be error. Value is: %v", val)
+	}
+	if val.(float64) != (2+3.765)-2-3.765-123.98 {
+		t.Fatalf("Invalid value %v", val)
+	}
+	fmt.Printf("correct: %d %v\n", tp, val)
+}

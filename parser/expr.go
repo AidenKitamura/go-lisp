@@ -48,6 +48,12 @@ func EVAL(e *EXPR) (TYPE int, VALUE interface{}) {
 	switch e.op {
 	case ADD:
 		return EVAL_ADD(e)
+	case MINUS:
+		return EVAL_MINUS(e)
+	case MULTIPLY:
+		return EVAL_MULTIPLY(e)
+	case DIVIDE:
+		return EVAL_DIVIDE(e)
 	case INT:
 		operand, err := strconv.Atoi(e.item)
 		if err == nil {
