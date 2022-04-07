@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/AidenKitamura/go-lisp/parser"
 )
 
 const (
@@ -17,9 +19,8 @@ func main() {
 	for scanner.Scan() {
 		// Do something with the data
 		line := scanner.Text()
-		tokens := GEN_TOKENS(line)
+		tokens := parser.Tokenize(line)
 		fmt.Printf("Your Parsed Tokens Are: %v\n", tokens)
-		fmt.Printf("Your evaluated results are: %v\n", GEN_EXPRS(tokens).EVAL())
 		logger()
 	}
 }

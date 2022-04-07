@@ -20,6 +20,7 @@ const (
 	INT
 	FLOAT
 	LIST
+	BOOLEAN
 	UNKNOWN
 	ERROR
 )
